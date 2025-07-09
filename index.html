@@ -2,39 +2,61 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Test Paho MQTT</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/mqttws31.min.js"></script>
+  <title>Monitor MQTT ESP32 con MQTT.js</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      text-align: center;
+      padding-top: 40px;
+    }
+    h1 {
+      color: #00e676;
+    }
+    .dato {
+      font-size: 24px;
+      margin: 15px 0;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h1>Test Paho MQTT</h1>
+  <h1>📡 Datos desde ESP32 usando MQTT.js</h1>
   <div id="status">⏳ Conectando...</div>
+  <div class="dato">Gas: <span id="gas">--</span></div>
+  <div class="dato">Temperatura: <span id="temp">--</span> °C</div>
+  <div class="dato">Humedad: <span id="hum">--</span> %</div>
 
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script>
-    if (typeof Paho === 'undefined') {
-      document.getElementById('status').textContent = '❌ Error: Paho no cargó.';
-      throw new Error('Paho no definido');
-    }
+    const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
 
-    const clientId = "webClient-" + Math.floor(Math.random() * 10000);
-    const client = new Paho.MQTT.Client("broker.emqx.io", 8083, clientId);
+    client.on('connect', () => {
+      document.getElementById('status').textContent = '✅ Conectado al broker MQTT';
+      client.subscribe('esp32/gas');
+      client.subscribe('esp32/temp');
+      client.subscribe('esp32/hum');
+    });
 
-    client.onConnectionLost = function(responseObject) {
-      document.getElementById("status").textContent = "❌ Conexión perdida";
-      console.error("Conexión perdida:", responseObject.errorMessage);
-    };
+    client.on('error', (err) => {
+      document.getElementById('status').textContent = '❌ Error de conexión: ' + err.message;
+      console.error('Error MQTT:', err);
+    });
 
-    client.onMessageArrived = function(message) {
-      console.log("Mensaje recibido:", message.destinationName, message.payloadString);
-    };
+    client.on('message', (topic, message) => {
+      const msg = message.toString();
+      console.log(`Mensaje recibido en ${topic}: ${msg}`);
 
-    client.connect({
-      onSuccess: function() {
-        document.getElementById("status").textContent = "✅ Conectado al broker MQTT";
-        client.subscribe("esp32/gas");
-      },
-      onFailure: function(e) {
-        document.getElementById("status").textContent = "❌ Falló la conexión: " + e.errorMessage;
-        console.error("Error de conexión MQTT:", e);
+      if (topic === 'esp32/gas') {
+        document.getElementById('gas').textContent = msg;
+      } else if (topic === 'esp32/temp') {
+        document.getElementById('temp').textContent = msg;
+      } else if (topic === 'esp32/hum') {
+        document.getElementById('hum').textContent = msg;
       }
     });
   </script>
