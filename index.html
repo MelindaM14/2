@@ -39,6 +39,37 @@
     const clientId = "webClient-" + Math.floor(Math.random() * 10000);
     const client = new Paho.MQTT.Client("test.mosquitto.org", 8081, clientId);
 
-    client.onConnectionLost = function (
+    client.onConnectionLost = function (responseObject) {
+      document.getElementById("status").textContent = "❌ Conexión perdida";
+      console.error("Conexión perdida:", responseObject.errorMessage);
+    };
+
+    client.onMessageArrived = function (message) {
+      console.log("Mensaje:", message.destinationName, message.payloadString);
+      if (message.destinationName === "esp32/gas") {
+        document.getElementById("gas").textContent = message.payloadString;
+      } else if (message.destinationName === "esp32/temp") {
+        document.getElementById("temp").textContent = message.payloadString;
+      } else if (message.destinationName === "esp32/hum") {
+        document.getElementById("hum").textContent = message.payloadString;
+      }
+    };
+
+    client.connect({
+      useSSL: true,
+      onSuccess: function () {
+        document.getElementById("status").textContent = "✅ Conectado al broker MQTT";
+        client.subscribe("esp32/gas");
+        client.subscribe("esp32/temp");
+        client.subscribe("esp32/hum");
+      },
+      onFailure: function (e) {
+        document.getElementById("status").textContent = "❌ Error de conexión: " + e.errorMessage;
+        console.error("Error:", e);
+      }
+    });
+  </script>
+</body>
+</html>
 
 
