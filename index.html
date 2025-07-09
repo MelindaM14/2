@@ -2,35 +2,137 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Monitor MQTT ESP32 con MQTT.js</title>
-  <link rel="icon" href="data:,"> <!-- Esto evita el error favicon.ico 404 -->
+  <title>Monitor MQTT Triapex Electronics</title>
+  <link rel="icon" href="data:,"> <!-- Evita error favicon.ico 404 -->
   <style>
+    /* Reset y base */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #121212;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212; /* negro oscuro */
       color: #fff;
-      text-align: center;
-      padding-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+      box-sizing: border-box;
     }
+
     h1 {
-      color: #00e676;
+      color: #ffec00; /* amarillo */
+      font-weight: 900;
+      margin-bottom: 40px;
+      text-shadow: 0 0 10px #ffec00aa;
+      font-size: 2.8rem;
     }
-    .dato {
-      font-size: 24px;
-      margin: 15px 0;
-    }
+
     #status {
-      margin-top: 20px;
       font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+      color: #cccccc;
+    }
+
+    .datos-container {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 50px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .dato {
+      background-color: #222;
+      border-radius: 15px;
+      padding: 30px 40px;
+      box-shadow: 0 6px 20px rgba(255, 236, 0, 0.3);
+      flex: 1 1 200px;
+      max-width: 220px;
+      text-align: center;
+      transition: background-color 0.3s ease;
+      cursor: default;
+    }
+
+    .dato:hover {
+      background-color: #333;
+    }
+
+    .dato-title {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #ffec00;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+    }
+
+    .dato-value {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 2px;
+      user-select: none;
+    }
+
+    /* Color alerta para gas */
+    .alert {
+      color: #ff3b3b !important;
+      text-shadow: 0 0 15px #ff3b3baa;
+    }
+
+    /* Logo */
+    .logo-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .logo-container img {
+      max-width: 300px;
+      width: 80vw;
+      height: auto;
+      filter: drop-shadow(0 0 8px #ffec00bb);
+      user-select: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .datos-container {
+        flex-direction: column;
+        gap: 25px;
+      }
+      .dato {
+        max-width: 100%;
+      }
+      h1 {
+        font-size: 2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>📡 Datos desde ESP32 usando MQTT.js</h1>
+  <h1>📡 Triapex Electronics - Monitor MQTT ESP32</h1>
   <div id="status">⏳ Conectando...</div>
-  <div class="dato">Gas: <span id="gas">--</span></div>
-  <div class="dato">Temperatura: <span id="temp">--</span> °C</div>
-  <div class="dato">Humedad: <span id="hum">--</span> %</div>
+
+  <div class="datos-container">
+    <div class="dato">
+      <div class="dato-title">Gas (MQ-2)</div>
+      <div id="gas" class="dato-value">--</div>
+    </div>
+    <div class="dato">
+      <div class="dato-title">Temperatura</div>
+      <div id="temp" class="dato-value">-- °C</div>
+    </div>
+    <div class="dato">
+      <div class="dato-title">Humedad</div>
+      <div id="hum" class="dato-value">-- %</div>
+    </div>
+  </div>
+
+  <div class="logo-container">
+    <img src="acd041e4-f9f3-4f08-b1da-3f79783d29eb.png" alt="Triapex Electronics Logo" />
+  </div>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script>
@@ -50,14 +152,20 @@
 
     client.on('message', (topic, message) => {
       const msg = message.toString();
-      console.log(`Mensaje recibido en ${topic}: ${msg}`);
 
       if (topic === 'esp32/gas') {
-        document.getElementById('gas').textContent = msg;
+        const gasElem = document.getElementById('gas');
+        gasElem.textContent = msg;
+        // Cambiar color si supera 2000
+        if (parseInt(msg) > 2000) {
+          gasElem.classList.add('alert');
+        } else {
+          gasElem.classList.remove('alert');
+        }
       } else if (topic === 'esp32/temp') {
-        document.getElementById('temp').textContent = msg;
+        document.getElementById('temp').textContent = msg + " °C";
       } else if (topic === 'esp32/hum') {
-        document.getElementById('hum').textContent = msg;
+        document.getElementById('hum').textContent = msg + " %";
       }
     });
   </script>
