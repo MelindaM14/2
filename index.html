@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Monitor MQTT ESP32</title>
-  <!-- Carga la librería Paho MQTT -->
+  <!-- Cambié el CDN por el oficial, que funciona bien con la propiedad Client -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/mqttws31.min.js"></script>
   <style>
     body {
@@ -34,17 +34,19 @@
   <div id="status">⏳ Conectando...</div>
 
   <script>
-    // Crear cliente MQTT con id aleatorio
+    if (typeof Paho === 'undefined') {
+      document.getElementById('status').textContent = '❌ Error: La librería Paho no se cargó.';
+      throw new Error('Paho no definido');
+    }
+
     const clientId = "webClient-" + Math.floor(Math.random() * 10000);
     const client = new Paho.MQTT.Client("broker.emqx.io", 8083, clientId);
 
-    // Evento al perder conexión
     client.onConnectionLost = function(responseObject) {
       document.getElementById("status").textContent = "❌ Conexión perdida";
       console.error("Conexión perdida:", responseObject.errorMessage);
     };
 
-    // Evento al recibir mensaje
     client.onMessageArrived = function(message) {
       console.log("Mensaje recibido:", message.destinationName, message.payloadString);
 
@@ -57,11 +59,9 @@
       }
     };
 
-    // Conectar al broker MQTT
     client.connect({
       onSuccess: function() {
         document.getElementById("status").textContent = "✅ Conectado al broker MQTT";
-        // Suscribirse a los topics
         client.subscribe("esp32/gas");
         client.subscribe("esp32/temp");
         client.subscribe("esp32/hum");
