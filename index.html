@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Monitor MQTT ESP32</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/mqttws31.min.js"></script>
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,7 +17,7 @@
     }
     .dato {
       font-size: 24px;
-      margin: 10px 0;
+      margin: 15px 0;
     }
     #status {
       margin-top: 20px;
@@ -43,8 +42,7 @@
     };
 
     client.onMessageArrived = function (message) {
-      console.log("Mensaje recibido:", message.destinationName, message.payloadString);
-
+      console.log("Mensaje:", message.destinationName, message.payloadString);
       if (message.destinationName === "esp32/gas") {
         document.getElementById("gas").textContent = message.payloadString;
       } else if (message.destinationName === "esp32/temp") {
@@ -63,11 +61,12 @@
         client.subscribe("esp32/hum");
       },
       onFailure: function (e) {
-        document.getElementById("status").textContent = "❌ Falló la conexión: " + e.errorMessage;
+        document.getElementById("status").textContent = "❌ Error: " + e.errorMessage;
         console.error("Error de conexión:", e);
       }
     });
   </script>
 </body>
 </html>
+
 
