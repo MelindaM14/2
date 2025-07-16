@@ -121,7 +121,7 @@
     <img src="https://raw.githubusercontent.com/MelindaM14/2/main/logo.png" alt="Logo Triapex" />
   </div>
 
-  <div id="status">⏳ Conectando...</div>
+  <div id="status"> Conectando...</div>
 
   <div class="datos-container">
     <div class="dato">
@@ -143,14 +143,14 @@
     const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
 
     client.on('connect', () => {
-      document.getElementById('status').textContent = '✅ Conectado al broker MQTT';
+      document.getElementById('status').textContent = 'Conectado al broker MQTT';
       client.subscribe('esp32/gas');
       client.subscribe('esp32/temp');
       client.subscribe('esp32/hum');
     });
 
     client.on('error', (err) => {
-      document.getElementById('status').textContent = '❌ Error de conexión: ' + err.message;
+      document.getElementById('status').textContent = 'Error de conexión: ' + err.message;
       console.error('Error MQTT:', err);
     });
 
