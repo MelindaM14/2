@@ -2,208 +2,173 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Monitor MQTT Triapex Electronics</title>
   <link rel="icon" href="data:,">
   <style>
-    :root{
-      --negro:#000;
-      --amarillo:#ffec00;
-      --grisPanel:#f5f5f5;
-      --texto:#000;
-      --sombra: 0 8px 24px rgba(0,0,0,.18);
-    }
-
-    /* Layout base */
-    html, body {
-      height: 100%;
-    }
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #fff;
-      color: var(--texto);
+      color: #000;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
       box-sizing: border-box;
-      overflow-x: hidden;
+      position: relative;
     }
 
-    /* Header con logo a la izquierda (doble de tamaño) */
+    /* Logo arriba a la izquierda */
     .header {
       display: flex;
       justify-content: flex-start;
-      align-items: center;
       padding: 20px 40px;
     }
     .header img {
-      max-width: 320px;   /* Doble del 160px anterior */
+      max-width: 320px; /* doble tamaño */
       height: auto;
-      display: block;
     }
 
-    /* Zona central: todo centrado en el viewport (sin que lo afecte el footer) */
-    main {
+    /* Contenedor central para centrar los datos */
+    .main {
       flex: 1;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: center; /* centra vertical */
+      align-items: center;     /* centra horizontal */
+      text-align: center;
       padding: 20px;
-      /* deja espacio virtual para que el footer fijo no tape nada en móviles muy bajos */
-      padding-bottom: 160px;
       box-sizing: border-box;
     }
 
-    /* Estado de conexión (sobre el panel, centrado) */
+    /* Estado conexión */
     #status {
-      text-align: center;
-      font-weight: 700;
-      font-size: 1.1rem;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 40px;
       color: #444;
-      margin-bottom: 24px;
     }
 
-    /* Panel contenedor (tarjetas adentro) — centrado */
-    .panel {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-    }
-
+    /* Panel de datos */
     .datos-container {
       display: flex;
-      gap: 32px;
+      gap: 40px;
       justify-content: center;
       flex-wrap: wrap;
       width: 100%;
-      max-width: 900px;
+      max-width: 800px;
+      z-index: 2;
     }
 
     .dato {
-      background-color: var(--grisPanel);
-      border-radius: 14px;
-      padding: 26px 36px;
-      box-shadow: var(--sombra);
-      flex: 1 1 220px;
-      max-width: 260px;
+      background-color: #f5f5f5;
+      border-radius: 12px;
+      padding: 25px 35px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      flex: 1 1 200px;
+      max-width: 220px;
       text-align: center;
-      transition: transform .2s ease;
+      transition: transform 0.2s ease;
     }
-    .dato:hover { transform: scale(1.04); }
+
+    .dato:hover {
+      transform: scale(1.05);
+    }
 
     .dato-title {
-      font-size: 1.05rem;
-      margin-bottom: 10px;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
       color: #333;
-      font-weight: 700;
-      letter-spacing: .3px;
+      font-weight: 600;
     }
+
     .dato-value {
-      font-size: 2.6rem;
+      font-size: 2.5rem;
       font-weight: 900;
       color: #000;
       user-select: none;
-      line-height: 1.1;
     }
 
-    /* Alerta color para gas */
+    /* Color alerta para gas */
     .alert {
       color: #e60000 !important;
-      text-shadow: 0 0 12px rgba(255,59,59,.35);
+      text-shadow: 0 0 12px #ff3b3b55;
     }
 
-    /* Footer fijo con franja negra y amarilla superpuesta en diagonal */
+    /* Footer negro con franja amarilla */
     .footer {
-      position: fixed;
-      left: 0;
+      position: absolute;
       bottom: 0;
+      left: 0;
       width: 100%;
       height: 120px;
-      background: var(--negro);
+      background-color: #000;
       color: #fff;
       display: flex;
-      justify-content: center;  /* centro horizontal del texto */
-      align-items: center;      /* centro vertical del texto */
-      text-align: center;
-      font-size: 1rem;
-      font-weight: 800;
-      letter-spacing: .5px;
+      align-items: flex-end;
+      padding: 20px 40px;
+      font-size: 0.9rem;
+      font-weight: bold;
       box-sizing: border-box;
       z-index: 1;
       overflow: hidden;
-      padding: 0 16px;
     }
-    /* Franja amarilla que “continúa” por arriba de la negra */
-    .footer::after{
-      content:"";
-      position:absolute;
+    .footer::after {
+      content: "";
+      position: absolute;
       right: 0;
       bottom: 0;
-      width: 60%;
-      height: 260%;
-      background: var(--amarillo);
-      transform: translateY(30%) skewY(-24deg);
-      transform-origin: bottom right;
-      z-index: 0; /* por detrás del texto */
-    }
-    /* Asegura que el texto quede por delante de la franja */
-    .footer .footer-text{
-      position: relative;
-      z-index: 2;
-      color:#fff; /* texto blanco */
-      mix-blend-mode: normal;
-      white-space: pre-wrap;
+      width: 40%;
+      height: 100%;
+      background-color: #ffec00;
+      clip-path: polygon(100% 100%, 0 100%, 100% 0);
     }
 
-    /* Responsive refinado */
-    @media (max-width: 768px){
-      .header { padding: 16px 20px; }
-      .header img { max-width: 240px; } /* proporcional en tablets */
-      .dato { max-width: 100%; }
-      .footer { height: 110px; }
-    }
-    @media (max-width: 480px){
-      .header img { max-width: 200px; } /* proporcional en móviles */
-      .footer { height: 100px; }
-      main { padding-bottom: 120px; }
-      .dato-value { font-size: 2.2rem; }
+    /* Responsive */
+    @media (max-width: 480px) {
+      .datos-container {
+        flex-direction: column;
+        gap: 25px;
+      }
+      .dato {
+        max-width: 100%;
+      }
+      .header img {
+        max-width: 220px; /* se ajusta en móviles */
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header con logo (doble tamaño) -->
-  <header class="header">
+  <!-- Logo -->
+  <div class="header">
     <img src="https://raw.githubusercontent.com/MelindaM14/2/main/logo.png" alt="Logo Triapex" />
-  </header>
+  </div>
 
-  <!-- Centro: status + panel (centrado en pantalla) -->
-  <main>
-    <div class="panel">
-      <div id="status">⏳ Conectando...</div>
+  <!-- Centro con estado + datos centrados -->
+  <div class="main">
+    <div id="status">⏳ Conectando...</div>
 
-      <div class="datos-container">
-        <div class="dato">
-          <div class="dato-title">Gas (MQ-2)</div>
-          <div id="gas" class="dato-value">--</div>
-        </div>
-        <div class="dato">
-          <div class="dato-title">Temperatura</div>
-          <div id="temp" class="dato-value">-- °C</div>
-        </div>
-        <div class="dato">
-          <div class="dato-title">Humedad</div>
-          <div id="hum" class="dato-value">-- %</div>
-        </div>
+    <div class="datos-container">
+      <div class="dato">
+        <div class="dato-title">Gas (MQ-2)</div>
+        <div id="gas" class="dato-value">--</div>
+      </div>
+      <div class="dato">
+        <div class="dato-title">Temperatura</div>
+        <div id="temp" class="dato-value">-- °C</div>
+      </div>
+      <div class="dato">
+        <div class="dato-title">Humedad</div>
+        <div id="hum" class="dato-value">-- %</div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <!-- Footer con franja negra + amarilla superpuesta y texto blanco centrado -->
-  <footer class="footer">
-    <div class="footer-text">TRIAPEX ELECTRONICS — DETECTOR FUGAS DE GAS</div>
-  </footer>
+  <!-- Footer -->
+  <div class="footer">
+    TRIAPEX ELECTRONICS — DETECTOR FUGAS DE GAS
+  </div>
 
   <!-- MQTT -->
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
