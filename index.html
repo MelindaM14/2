@@ -1,196 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Monitor MQTT Triapex Electronics</title>
-  <link rel="icon" href="data:,"> <!-- Evita error favicon.ico 404 -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PANEL DE DATOS</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #fff;
-      color: #000;
+      height: 100vh;
       display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      box-sizing: border-box;
-      position: relative;
-    }
-
-    /* Logo arriba a la izquierda */
-    .header {
-      display: flex;
-      justify-content: flex-start;
-      padding: 20px 40px;
-    }
-    .header img {
-      max-width: 160px;
-      height: auto;
-    }
-
-    /* Estado conexión */
-    #status {
-      text-align: center;
-      font-weight: bold;
-      font-size: 1.2rem;
-      margin: 20px 0 40px 0;
-      color: #444;
-    }
-
-    /* Panel de datos */
-    .datos-container {
-      display: flex;
-      gap: 40px;
       justify-content: center;
-      flex-wrap: wrap;
-      margin: auto;
-      width: 100%;
-      max-width: 800px;
-      z-index: 2;
+      align-items: center;
+      background-color: #121212;
+      color: #fff;
+      font-family: Arial, sans-serif;
     }
 
-    .dato {
-      background-color: #f5f5f5;
-      border-radius: 12px;
-      padding: 25px 35px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      flex: 1 1 200px;
-      max-width: 220px;
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      width: 90%;
+      max-width: 900px;
+    }
+
+    .panel {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 15px;
       text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
       transition: transform 0.2s ease;
     }
 
-    .dato:hover {
+    .panel:hover {
       transform: scale(1.05);
     }
 
-    .dato-title {
-      font-size: 1.1rem;
-      margin-bottom: 12px;
-      color: #333;
-      font-weight: 600;
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      color: #00c8ff;
     }
 
-    .dato-value {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: #000;
-      user-select: none;
-    }
-
-    /* Color alerta para gas */
-    .alert {
-      color: #e60000 !important;
-      text-shadow: 0 0 12px #ff3b3b55;
-    }
-
-    /* Footer negro con franja amarilla */
-    .footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 120px;
-      background-color: #000;
-      color: #fff;
-      display: flex;
-      align-items: flex-end;
-      padding: 20px 40px;
-      font-size: 0.9rem;
+    .panel p {
+      font-size: 18px;
       font-weight: bold;
-      box-sizing: border-box;
-      z-index: 1;
-      overflow: hidden;
-    }
-    .footer::after {
-      content: "";
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 40%;
-      height: 100%;
-      background-color: #ffec00;
-      clip-path: polygon(100% 100%, 0 100%, 100% 0);
-    }
-
-    /* Responsive */
-    @media (max-width: 480px) {
-      .datos-container {
-        flex-direction: column;
-        gap: 25px;
-      }
-      .dato {
-        max-width: 100%;
-      }
     }
   </style>
 </head>
 <body>
-
-  <!-- Logo -->
-  <div class="header">
-    <img src="https://raw.githubusercontent.com/MelindaM14/2/main/logo.png" alt="Logo Triapex" />
-  </div>
-
-  <!-- Estado conexión -->
-  <div id="status">Conectando...</div>
-
-  <!-- Datos -->
-  <div class="datos-container">
-    <div class="dato">
-      <div class="dato-title">Gas (MQ-2)</div>
-      <div id="gas" class="dato-value">--</div>
+  <div class="container">
+    <div class="panel">
+      <h2>Temperatura</h2>
+      <p id="temp">25 °C</p>
     </div>
-    <div class="dato">
-      <div class="dato-title">Temperatura</div>
-      <div id="temp" class="dato-value">-- °C</div>
+    <div class="panel">
+      <h2>Humedad</h2>
+      <p id="hum">60 %</p>
     </div>
-    <div class="dato">
-      <div class="dato-title">Humedad</div>
-      <div id="hum" class="dato-value">-- %</div>
+    <div class="panel">
+      <h2>Gas</h2>
+      <p id="gas">Normal</p>
     </div>
   </div>
-
-  <!-- Footer -->
-  <div class="footer">
-    TRIAPEX ELECTRONICS — DETECTOR FUGAS DE GAS
-  </div>
-
-  <!-- MQTT -->
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-  <script>
-    const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
-
-    client.on('connect', () => {
-      document.getElementById('status').textContent = 'Conectado al broker MQTT';
-      client.subscribe('esp32/gas');
-      client.subscribe('esp32/temp');
-      client.subscribe('esp32/hum');
-    });
-
-    client.on('error', (err) => {
-      document.getElementById('status').textContent = 'Error de conexión: ' + err.message;
-      console.error('Error MQTT:', err);
-    });
-
-    client.on('message', (topic, message) => {
-      const msg = message.toString();
-
-      if (topic === 'esp32/gas') {
-        const gasElem = document.getElementById('gas');
-        gasElem.textContent = msg;
-        if (parseInt(msg) > 2000) {
-          gasElem.classList.add('alert');
-        } else {
-          gasElem.classList.remove('alert');
-        }
-      } else if (topic === 'esp32/temp') {
-        document.getElementById('temp').textContent = msg + " °C";
-      } else if (topic === 'esp32/hum') {
-        document.getElementById('hum').textContent = msg + " %";
-      }
-    });
-  </script>
 </body>
 </html>
-
