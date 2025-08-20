@@ -5,96 +5,112 @@
   <title>Monitor MQTT Triapex Electronics</title>
   <link rel="icon" href="data:,"> <!-- Evita error favicon.ico 404 -->
   <style>
-    /* Reset y base */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #121212; /* negro oscuro */
-      color: #fff;
+      background-color: #fff;
+      color: #000;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
       min-height: 100vh;
       box-sizing: border-box;
+      position: relative;
     }
 
-    h1 {
-      color: #ffec00; /* amarillo */
-      font-weight: 900;
-      margin-bottom: 40px;
-      text-shadow: 0 0 10px #ffec00aa;
-      font-size: 2.8rem;
-      text-align: center;
+    /* Logo arriba a la izquierda */
+    .header {
+      display: flex;
+      justify-content: flex-start;
+      padding: 20px 40px;
+    }
+    .header img {
+      max-width: 160px;
+      height: auto;
     }
 
+    /* Estado conexión */
     #status {
+      text-align: center;
       font-weight: bold;
       font-size: 1.2rem;
-      margin-bottom: 40px;
-      color: #cccccc;
+      margin: 20px 0 40px 0;
+      color: #444;
     }
 
+    /* Panel de datos */
     .datos-container {
       display: flex;
       gap: 40px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 50px;
+      margin: auto;
       width: 100%;
-      max-width: 700px;
+      max-width: 800px;
+      z-index: 2;
     }
 
     .dato {
-      background-color: #222;
-      border-radius: 15px;
-      padding: 30px 40px;
-      box-shadow: 0 6px 20px rgba(255, 236, 0, 0.3);
+      background-color: #f5f5f5;
+      border-radius: 12px;
+      padding: 25px 35px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       flex: 1 1 200px;
       max-width: 220px;
       text-align: center;
-      transition: background-color 0.3s ease;
-      cursor: default;
+      transition: transform 0.2s ease;
     }
 
     .dato:hover {
-      background-color: #333;
+      transform: scale(1.05);
     }
 
     .dato-title {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      color: #ffec00;
-      letter-spacing: 1.5px;
-      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      color: #333;
+      font-weight: 600;
     }
 
     .dato-value {
-      font-size: 3rem;
+      font-size: 2.5rem;
       font-weight: 900;
-      color: #fff;
-      letter-spacing: 2px;
+      color: #000;
       user-select: none;
     }
 
     /* Color alerta para gas */
     .alert {
-      color: #ff3b3b !important;
-      text-shadow: 0 0 15px #ff3b3baa;
+      color: #e60000 !important;
+      text-shadow: 0 0 12px #ff3b3b55;
     }
 
-    /* Logo */
-    .logo-container {
-      margin-top: 30px;
-      text-align: center;
+    /* Footer negro con franja amarilla */
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      align-items: flex-end;
+      padding: 20px 40px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      box-sizing: border-box;
+      z-index: 1;
+      overflow: hidden;
     }
-
-    .logo-container img {
-      max-width: 300px;
-      width: 80vw;
-      height: auto;
-      filter: drop-shadow(0 0 8px #ffec00bb);
-      user-select: none;
+    .footer::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 40%;
+      height: 100%;
+      background-color: #ffec00;
+      clip-path: polygon(100% 100%, 0 100%, 100% 0);
     }
 
     /* Responsive */
@@ -106,23 +122,20 @@
       .dato {
         max-width: 100%;
       }
-      h1 {
-        font-size: 2rem;
-      }
     }
   </style>
 </head>
 <body>
 
-  <h1> Triapex Electronics - Detector de Fugas de Gas</h1>
-
-  <!-- Logo desde GitHub -->
-  <div class="logo-container">
+  <!-- Logo -->
+  <div class="header">
     <img src="https://raw.githubusercontent.com/MelindaM14/2/main/logo.png" alt="Logo Triapex" />
   </div>
 
-  <div id="status"> Conectando...</div>
+  <!-- Estado conexión -->
+  <div id="status">⏳ Conectando...</div>
 
+  <!-- Datos -->
   <div class="datos-container">
     <div class="dato">
       <div class="dato-title">Gas (MQ-2)</div>
@@ -138,19 +151,25 @@
     </div>
   </div>
 
+  <!-- Footer -->
+  <div class="footer">
+    TRIAPEX ELECTRONICS — DETECTOR FUGAS DE GAS
+  </div>
+
+  <!-- MQTT -->
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script>
     const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
 
     client.on('connect', () => {
-      document.getElementById('status').textContent = 'Conectado al broker MQTT';
+      document.getElementById('status').textContent = '✅ Conectado al broker MQTT';
       client.subscribe('esp32/gas');
       client.subscribe('esp32/temp');
       client.subscribe('esp32/hum');
     });
 
     client.on('error', (err) => {
-      document.getElementById('status').textContent = 'Error de conexión: ' + err.message;
+      document.getElementById('status').textContent = '❌ Error de conexión: ' + err.message;
       console.error('Error MQTT:', err);
     });
 
@@ -160,7 +179,6 @@
       if (topic === 'esp32/gas') {
         const gasElem = document.getElementById('gas');
         gasElem.textContent = msg;
-        // Cambiar color si supera 2000
         if (parseInt(msg) > 2000) {
           gasElem.classList.add('alert');
         } else {
@@ -175,4 +193,3 @@
   </script>
 </body>
 </html>
-
