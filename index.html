@@ -24,7 +24,7 @@
       padding: 20px 40px;
     }
     .header img {
-      max-width: 160px;
+      max-width: 320px; /* 🔥 el doble de tamaño */
       height: auto;
     }
 
@@ -94,9 +94,10 @@
       background-color: #000;
       color: #fff;
       display: flex;
-      align-items: flex-end;
-      padding: 20px 40px;
-      font-size: 0.9rem;
+      justify-content: center; /* 🔥 centrado horizontal */
+      align-items: center;    /* 🔥 centrado vertical */
+      text-align: center;
+      font-size: 1rem;
       font-weight: bold;
       box-sizing: border-box;
       z-index: 1;
@@ -133,7 +134,7 @@
   </div>
 
   <!-- Estado conexión -->
-  <div id="status">⏳ Conectando...</div>
+  <div id="status">Conectando...</div>
 
   <!-- Datos -->
   <div class="datos-container">
@@ -162,14 +163,14 @@
     const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
 
     client.on('connect', () => {
-      document.getElementById('status').textContent = '✅ Conectado al broker MQTT';
+      document.getElementById('status').textContent = 'Conectado al broker MQTT';
       client.subscribe('esp32/gas');
       client.subscribe('esp32/temp');
       client.subscribe('esp32/hum');
     });
 
     client.on('error', (err) => {
-      document.getElementById('status').textContent = '❌ Error de conexión: ' + err.message;
+      document.getElementById('status').textContent = 'Error de conexión: ' + err.message;
       console.error('Error MQTT:', err);
     });
 
