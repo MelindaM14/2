@@ -1,82 +1,244 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Monitor MQTT Triapex Electronics</title>
+  <link rel="icon" href="data:,">
   <style>
+    :root{
+      --negro:#000;
+      --amarillo:#ffec00;
+      --grisPanel:#f5f5f5;
+      --texto:#000;
+      --sombra: 0 8px 24px rgba(0,0,0,.18);
+    }
+
+    /* Layout base */
+    html, body {
+      height: 100%;
+    }
     body {
       margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #111;
-      color: #fff;
-      font-family: Arial, sans-serif;
-    }
-
-    .dashboard {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .card {
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-      text-align: center;
-      width: 220px;
-      height: 120px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fff;
+      color: var(--texto);
       display: flex;
       flex-direction: column;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
+    /* Header con logo a la izquierda (doble de tamaño) */
+    .header {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 20px 40px;
+    }
+    .header img {
+      max-width: 320px;   /* Doble del 160px anterior */
+      height: auto;
+      display: block;
+    }
+
+    /* Zona central: todo centrado en el viewport (sin que lo afecte el footer) */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
       justify-content: center;
+      padding: 20px;
+      /* deja espacio virtual para que el footer fijo no tape nada en móviles muy bajos */
+      padding-bottom: 160px;
+      box-sizing: border-box;
     }
 
-    .card h2 {
-      margin: 0;
-      font-size: 22px;
-      color: cyan;
+    /* Estado de conexión (sobre el panel, centrado) */
+    #status {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #444;
+      margin-bottom: 24px;
     }
 
-    .card p {
-      margin: 5px 0 0;
-      font-size: 18px;
+    /* Panel contenedor (tarjetas adentro) — centrado */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .datos-container {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .dato {
+      background-color: var(--grisPanel);
+      border-radius: 14px;
+      padding: 26px 36px;
+      box-shadow: var(--sombra);
+      flex: 1 1 220px;
+      max-width: 260px;
+      text-align: center;
+      transition: transform .2s ease;
+    }
+    .dato:hover { transform: scale(1.04); }
+
+    .dato-title {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      color: #333;
+      font-weight: 700;
+      letter-spacing: .3px;
+    }
+    .dato-value {
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: #000;
+      user-select: none;
+      line-height: 1.1;
+    }
+
+    /* Alerta color para gas */
+    .alert {
+      color: #e60000 !important;
+      text-shadow: 0 0 12px rgba(255,59,59,.35);
+    }
+
+    /* Footer fijo con franja negra y amarilla superpuesta en diagonal */
+    .footer {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 120px;
+      background: var(--negro);
+      color: #fff;
+      display: flex;
+      justify-content: center;  /* centro horizontal del texto */
+      align-items: center;      /* centro vertical del texto */
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: .5px;
+      box-sizing: border-box;
+      z-index: 1;
+      overflow: hidden;
+      padding: 0 16px;
+    }
+    /* Franja amarilla que “continúa” por arriba de la negra */
+    .footer::after{
+      content:"";
+      position:absolute;
+      right: 0;
+      bottom: 0;
+      width: 60%;
+      height: 260%;
+      background: var(--amarillo);
+      transform: translateY(30%) skewY(-24deg);
+      transform-origin: bottom right;
+      z-index: 0; /* por detrás del texto */
+    }
+    /* Asegura que el texto quede por delante de la franja */
+    .footer .footer-text{
+      position: relative;
+      z-index: 2;
+      color:#fff; /* texto blanco */
+      mix-blend-mode: normal;
+      white-space: pre-wrap;
+    }
+
+    /* Responsive refinado */
+    @media (max-width: 768px){
+      .header { padding: 16px 20px; }
+      .header img { max-width: 240px; } /* proporcional en tablets */
+      .dato { max-width: 100%; }
+      .footer { height: 110px; }
+    }
+    @media (max-width: 480px){
+      .header img { max-width: 200px; } /* proporcional en móviles */
+      .footer { height: 100px; }
+      main { padding-bottom: 120px; }
+      .dato-value { font-size: 2.2rem; }
     }
   </style>
 </head>
 <body>
-  <div class="dashboard">
-    <div class="card">
-      <h2>Temperatura</h2>
-      <p id="temp">25°C</p>
-    </div>
-    <div class="card">
-      <h2>Humedad</h2>
-      <p id="hum">60%</p>
-    </div>
-    <div class="card">
-      <h2>Calidad Aire</h2>
-      <p id="air">Buena</p>
-    </div>
-    <div class="card">
-      <h2>Nivel Gas</h2>
-      <p id="gas">Seguro</p>
-    </div>
-  </div>
 
+  <!-- Header con logo (doble tamaño) -->
+  <header class="header">
+    <img src="https://raw.githubusercontent.com/MelindaM14/2/main/logo.png" alt="Logo Triapex" />
+  </header>
+
+  <!-- Centro: status + panel (centrado en pantalla) -->
+  <main>
+    <div class="panel">
+      <div id="status">⏳ Conectando...</div>
+
+      <div class="datos-container">
+        <div class="dato">
+          <div class="dato-title">Gas (MQ-2)</div>
+          <div id="gas" class="dato-value">--</div>
+        </div>
+        <div class="dato">
+          <div class="dato-title">Temperatura</div>
+          <div id="temp" class="dato-value">-- °C</div>
+        </div>
+        <div class="dato">
+          <div class="dato-title">Humedad</div>
+          <div id="hum" class="dato-value">-- %</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer con franja negra + amarilla superpuesta y texto blanco centrado -->
+  <footer class="footer">
+    <div class="footer-text">TRIAPEX ELECTRONICS — DETECTOR FUGAS DE GAS</div>
+  </footer>
+
+  <!-- MQTT -->
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script>
-    // Simulación de actualización de datos
-    setInterval(() => {
-      document.getElementById("temp").textContent = Math.floor(20 + Math.random() * 10) + "°C";
-      document.getElementById("hum").textContent = Math.floor(40 + Math.random() * 30) + "%";
-      document.getElementById("air").textContent = ["Buena", "Regular", "Mala"][Math.floor(Math.random() * 3)];
-      document.getElementById("gas").textContent = ["Seguro", "Alerta", "Peligro"][Math.floor(Math.random() * 3)];
-    }, 2000);
+    const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
+
+    client.on('connect', () => {
+      document.getElementById('status').textContent = '✅ Conectado al broker MQTT';
+      client.subscribe('esp32/gas');
+      client.subscribe('esp32/temp');
+      client.subscribe('esp32/hum');
+    });
+
+    client.on('error', (err) => {
+      document.getElementById('status').textContent = '❌ Error de conexión: ' + err.message;
+      console.error('Error MQTT:', err);
+    });
+
+    client.on('message', (topic, message) => {
+      const msg = message.toString();
+
+      if (topic === 'esp32/gas') {
+        const gasElem = document.getElementById('gas');
+        gasElem.textContent = msg;
+        if (parseInt(msg) > 2000) {
+          gasElem.classList.add('alert');
+        } else {
+          gasElem.classList.remove('alert');
+        }
+      } else if (topic === 'esp32/temp') {
+        document.getElementById('temp').textContent = msg + " °C";
+      } else if (topic === 'esp32/hum') {
+        document.getElementById('hum').textContent = msg + " %";
+      }
+    });
   </script>
 </body>
 </html>
