@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Monitor MQTT Triapex Electronics</title>
-  <link rel="icon" href="data:,">
+  <link rel="icon" href="data:,"> <!-- Evita error favicon.ico 404 -->
   <style>
     body {
       margin: 0;
@@ -24,27 +24,16 @@
       padding: 20px 40px;
     }
     .header img {
-      max-width: 320px; /* doble tamaño */
+      max-width: 160px;
       height: auto;
-    }
-
-    /* Contenedor central para centrar los datos */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center; /* centra vertical */
-      align-items: center;     /* centra horizontal */
-      text-align: center;
-      padding: 20px;
-      box-sizing: border-box;
     }
 
     /* Estado conexión */
     #status {
+      text-align: center;
       font-weight: bold;
       font-size: 1.2rem;
-      margin-bottom: 40px;
+      margin: 20px 0 40px 0;
       color: #444;
     }
 
@@ -54,6 +43,7 @@
       gap: 40px;
       justify-content: center;
       flex-wrap: wrap;
+      margin: auto;
       width: 100%;
       max-width: 800px;
       z-index: 2;
@@ -132,9 +122,6 @@
       .dato {
         max-width: 100%;
       }
-      .header img {
-        max-width: 220px; /* se ajusta en móviles */
-      }
     }
   </style>
 </head>
@@ -145,23 +132,22 @@
     <img src="https://raw.githubusercontent.com/MelindaM14/2/main/logo.png" alt="Logo Triapex" />
   </div>
 
-  <!-- Centro con estado + datos centrados -->
-  <div class="main">
-    <div id="status">⏳ Conectando...</div>
+  <!-- Estado conexión -->
+  <div id="status">⏳ Conectando...</div>
 
-    <div class="datos-container">
-      <div class="dato">
-        <div class="dato-title">Gas (MQ-2)</div>
-        <div id="gas" class="dato-value">--</div>
-      </div>
-      <div class="dato">
-        <div class="dato-title">Temperatura</div>
-        <div id="temp" class="dato-value">-- °C</div>
-      </div>
-      <div class="dato">
-        <div class="dato-title">Humedad</div>
-        <div id="hum" class="dato-value">-- %</div>
-      </div>
+  <!-- Datos -->
+  <div class="datos-container">
+    <div class="dato">
+      <div class="dato-title">Gas (MQ-2)</div>
+      <div id="gas" class="dato-value">--</div>
+    </div>
+    <div class="dato">
+      <div class="dato-title">Temperatura</div>
+      <div id="temp" class="dato-value">-- °C</div>
+    </div>
+    <div class="dato">
+      <div class="dato-title">Humedad</div>
+      <div id="hum" class="dato-value">-- %</div>
     </div>
   </div>
 
