@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PANEL DE DATOS</title>
+  <title>Dashboard</title>
   <style>
     body {
       margin: 0;
@@ -11,58 +11,72 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #121212;
+      background: #111;
       color: #fff;
       font-family: Arial, sans-serif;
     }
 
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
       gap: 20px;
-      width: 90%;
-      max-width: 900px;
     }
 
-    .panel {
+    .card {
       background: #1e1e1e;
       padding: 20px;
       border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
       text-align: center;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-      transition: transform 0.2s ease;
+      width: 220px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
-    .panel:hover {
-      transform: scale(1.05);
-    }
-
-    .panel h2 {
-      margin: 0 0 10px;
+    .card h2 {
+      margin: 0;
       font-size: 22px;
-      color: #00c8ff;
+      color: cyan;
     }
 
-    .panel p {
+    .card p {
+      margin: 5px 0 0;
       font-size: 18px;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="panel">
+  <div class="dashboard">
+    <div class="card">
       <h2>Temperatura</h2>
-      <p id="temp">25 °C</p>
+      <p id="temp">25°C</p>
     </div>
-    <div class="panel">
+    <div class="card">
       <h2>Humedad</h2>
-      <p id="hum">60 %</p>
+      <p id="hum">60%</p>
     </div>
-    <div class="panel">
-      <h2>Gas</h2>
-      <p id="gas">Normal</p>
+    <div class="card">
+      <h2>Calidad Aire</h2>
+      <p id="air">Buena</p>
+    </div>
+    <div class="card">
+      <h2>Nivel Gas</h2>
+      <p id="gas">Seguro</p>
     </div>
   </div>
+
+  <script>
+    // Simulación de actualización de datos
+    setInterval(() => {
+      document.getElementById("temp").textContent = Math.floor(20 + Math.random() * 10) + "°C";
+      document.getElementById("hum").textContent = Math.floor(40 + Math.random() * 30) + "%";
+      document.getElementById("air").textContent = ["Buena", "Regular", "Mala"][Math.floor(Math.random() * 3)];
+      document.getElementById("gas").textContent = ["Seguro", "Alerta", "Peligro"][Math.floor(Math.random() * 3)];
+    }, 2000);
+  </script>
 </body>
 </html>
