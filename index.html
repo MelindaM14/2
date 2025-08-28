@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Monitor MQTT Triapex Electronics</title>
-  <link rel="icon" href="data:,"> <!-- Evita error favicon.ico 404 -->
+  <link rel="icon" href="data:,">
   <style>
     body {
       margin: 0;
@@ -17,18 +17,17 @@
       position: relative;
     }
 
-    /* Logo arriba a la izquierda */
     .header {
       display: flex;
       justify-content: flex-start;
       padding: 20px 40px;
     }
     .header img {
-      width: 320px;  /* Fuerzo siempre al doble */
+      width: 320px;
       height: auto;
+      max-width: 100%;
     }
 
-    /* Estado conexión */
     #status {
       text-align: center;
       font-weight: bold;
@@ -37,22 +36,22 @@
       color: #444;
     }
 
-    /* Contenedor general para centrar */
     .main {
-      flex: 1; /* ocupa todo el espacio libre */
+      flex: 1;
       display: flex;
-      justify-content: center; /* centrado horizontal */
-      align-items: center;     /* centrado vertical */
+      justify-content: center;
+      align-items: center;
+      padding: 0 20px;
     }
 
-    /* Panel de datos */
     .datos-container {
       display: flex;
       gap: 40px;
       justify-content: center;
-      flex-wrap: wrap;
-      max-width: 800px;
-      z-index: 2;
+      flex-wrap: wrap; 
+      max-width: 1000px;
+      width: 100%;
+      transition: all 0.3s ease;
     }
 
     .dato {
@@ -60,10 +59,10 @@
       border-radius: 12px;
       padding: 25px 35px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      flex: 1 1 200px;
-      max-width: 220px;
+      width: 220px;
+      flex: 1 1 220px;
       text-align: center;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, width 0.3s ease;
     }
 
     .dato:hover {
@@ -84,13 +83,11 @@
       user-select: none;
     }
 
-    /* Color alerta para gas */
     .alert {
       color: #e60000 !important;
       text-shadow: 0 0 12px #ff3b3b55;
     }
 
-    /* Footer negro con franja amarilla */
     .footer {
       position: absolute;
       bottom: 0;
@@ -119,29 +116,40 @@
       clip-path: polygon(100% 100%, 0 100%, 100% 0);
     }
 
-    /* Responsive */
-    @media (max-width: 480px) {
+    /* Tablets: más compactos */
+    @media (max-width: 900px) {
       .datos-container {
-        flex-direction: column;
         gap: 25px;
       }
       .dato {
+        width: 180px;
+        flex: 1 1 180px;
+      }
+    }
+
+    /* Móviles: vertical */
+    @media (max-width: 600px) {
+      .datos-container {
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+      }
+      .dato {
+        width: 100%;
         max-width: 100%;
+        flex: 1 1 auto;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Logo -->
   <div class="header">
     <img src="https://raw.githubusercontent.com/MelindaM14/2/main/logo.png" alt="Logo Triapex" />
   </div>
 
-  <!-- Estado conexión -->
   <div id="status">⏳ Conectando...</div>
 
-  <!-- Contenedor principal centrado -->
   <div class="main">
     <div class="datos-container">
       <div class="dato">
@@ -159,12 +167,10 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <div class="footer">
     TRIAPEX ELECTRONICS — DETECTOR FUGAS DE GAS
   </div>
 
-  <!-- MQTT -->
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script>
     const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
